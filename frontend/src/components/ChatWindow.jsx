@@ -41,8 +41,7 @@ export default function ChatWindow() {
     <div className="flex flex-col h-[400px]">
 
       {/* Chat history */}
-      <div className="flex-1 overflow-y-auto border rounded-xl p-4 bg-slate-50">
-
+      <div className="flex-1 overflow-y-auto border dark:border-gray-700 rounded-xl p-4 bg-slate-50 dark:bg-gray-800 transition-colors">
         {messages.length === 0 && (
           <div className="text-gray-400 text-center mt-10">
             Ask something about your uploaded document
@@ -64,7 +63,7 @@ export default function ChatWindow() {
               className={`px-4 py-2 rounded-2xl max-w-md shadow ${
                 msg.role === "user"
                   ? "bg-indigo-600 text-white"
-                  : "bg-white border"
+                  : "bg-white dark:bg-gray-700 border dark:border-gray-600 dark:text-gray-200"
               }`}
             >
               {msg.text}
@@ -87,18 +86,21 @@ export default function ChatWindow() {
 
         <textarea
           value={question}
-          onChange={(e) => setQuestion(e.target.value)}
+          onChange={(e) => {
+            setQuestion(e.target.value);
+
+            e.target.style.height = "auto";
+            e.target.style.height = e.target.scrollHeight + "px";
+          }}
           onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              if (!e.shiftKey) {
-                e.preventDefault();
-                askQuestion();
-              }
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              askQuestion();
             }
           }}
           placeholder="Ask something about your document..."
-          rows={2}
-          className="flex-1 border rounded-lg p-3 shadow-sm resize-none"
+          rows={1}
+          className="flex-1 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg p-3 shadow-sm resize-none overflow-hidden"
         />
 
         <button

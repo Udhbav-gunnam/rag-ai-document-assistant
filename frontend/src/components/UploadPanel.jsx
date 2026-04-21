@@ -5,8 +5,8 @@ export default function UploadPanel() {
   const [uploadedFileName, setUploadedFileName] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleUpload = async () => {
-    if (!file) {
+  const handleUpload = async (selectedFile = file) => {
+    if (!selectedFile) {
       alert("Select a PDF first");
       return;
     }
@@ -14,7 +14,7 @@ export default function UploadPanel() {
     setLoading(true);
 
     const formData = new FormData();
-    formData.append("file", file);
+    formData.append("file", selectedFile);
 
     const response = await fetch(
       "http://localhost:8000/upload",
@@ -28,15 +28,14 @@ export default function UploadPanel() {
 
     setLoading(false);
     
-    setUploadedFileName(file.name);
+    setUploadedFileName(selectedFile.name);
 
     alert(data.message);
   };
 
   return (
-    <div className="bg-slate-50 border rounded-xl p-4 shadow-sm">
-
-      <label className="block font-semibold mb-2">
+    <div className="bg-slate-50 dark:bg-gray-800 border dark:border-gray-700 rounded-xl p-4 shadow-sm transition-colors">
+      <label className="block font-semibold mb-2 dark:text-gray-200">
         Upload Document
       </label>
 
@@ -44,22 +43,44 @@ export default function UploadPanel() {
 
         <input
           type="file"
-          accept=".pdf"
-          onChange={(e) => setFile(e.target.files[0])}
-          className="flex-1 border rounded-lg p-2"
+          accept=".pdf,.docx,.pptx,.csv,.txt,.xlsx,.png,.jpg,.jpeg"
+          onChange={(e) => {
+            const selectedFile = e.target.files[0];
+            setFile(selectedFile);
+            if (selectedFile) {
+              handleUpload(selectedFile);
+            }
+          }}
+          className="flex-1 border dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg p-2"
         />
 
-        <button
-          onClick={handleUpload}
-          className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 rounded-lg shadow"
-        >
-          {loading ? "Uploading..." : "Upload"}
-        </button>
+        {!uploadedFileName && (
+          <button
+            onClick={() => handleUpload()}
+            className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 rounded-lg shadow"
+          >
+            {loading ? "Uploading..." : "Upload"}
+          </button>
+        )}
 
       </div>
       {uploadedFileName && (
-        <div className="mt-3 text-sm text-green-600">
-          Active document: <strong>{uploadedFileName}</strong>
+        <div className="mt-3 flex items-center justify-between text-sm text-green-600">
+
+          <span>
+            Active document: <strong>{uploadedFileName}</strong>
+          </span>
+
+          <button
+            onClick={() => {
+              setFile(null);
+              setUploadedFileName("");
+            }}
+            className="text-red-500 hover:text-red-700"
+          >
+            Remove
+          </button>
+
         </div>
       )}
     </div>
